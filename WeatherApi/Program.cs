@@ -42,9 +42,30 @@ public class GeocodingService
     {
         var response = await _httpClient.GetStringAsync($"https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address={address}&benchmark=Public_AR_Current&format=json");
         var data = JObject.Parse(response);
-        var coordinates = data["result"]["addressMatches"][0]["coordinates"];
-        double latitude = (double)coordinates["y"];
-        double longitude = (double)coordinates["x"];
+        var addressMatches = data["result"]?["addressMatches"];
+        
+        if (addressMatches == null || !addressMatches.Any())
+        {
+            throw new Exception("No address matches found.");
+        }
+
+        var coordinates = addressMatches[0]?["coordinates"];
+        if (coordinates == null)
+        {
+            throw new Exception("Coordinates not found.");
+        }
+
+        var latitudeToken = coordinates["y"];
+        var longitudeToken = coordinates["x"];
+
+        if (latitudeToken == null || longitudeToken == null)
+        {
+            throw new Exception("Latitude or Longitude not found.");
+        }
+
+        double latitude = (double)latitudeToken;
+        double longitude = (double)longitudeToken;
+
         return (latitude, longitude);
     }
 }
@@ -61,7 +82,13 @@ public class WeatherService
     public async Task<JObject> GetWeatherForecastAsync(double latitude, double longitude)
     {
         var response = await _httpClient.GetStringAsync($"https://api.weather.gov/points/{latitude},{longitude}");
-        var forecastUrl = JObject.Parse(response)["properties"]["forecast"];
+        var forecastUrl = JObject.Parse(response)["properties"]?["forecast"];
+
+        if (forecastUrl == null)
+        {
+            throw new Exception("Forecast URL not found.");
+        }
+
         var forecastResponse = await _httpClient.GetStringAsync(forecastUrl.ToString());
         return JObject.Parse(forecastResponse);
     }
