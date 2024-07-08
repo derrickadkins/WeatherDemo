@@ -118,7 +118,10 @@ public class WeatherService
             var forecastContent = await forecastResponse.Content.ReadAsStringAsync();
             _logger.LogInformation("Weather forecast response: {forecastContent}", forecastContent);
 
-            return JObject.Parse(forecastContent);
+            var parsedForecast = JObject.Parse(forecastContent);
+            _logger.LogInformation("Parsed forecast: {parsedForecast}", parsedForecast);
+
+            return parsedForecast;
         }
         catch (Exception ex)
         {
@@ -127,5 +130,6 @@ public class WeatherService
         }
     }
 }
+
 
 
