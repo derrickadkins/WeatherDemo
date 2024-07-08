@@ -81,15 +81,25 @@ public class WeatherService
 
     public async Task<JObject> GetWeatherForecastAsync(double latitude, double longitude)
     {
-        var response = await _httpClient.GetStringAsync($"https://api.weather.gov/points/{latitude},{longitude}");
-        var forecastUrl = JObject.Parse(response)["properties"]?["forecast"];
+        var request = new HttpRequestMessage(HttpMethod.Get, $"https://api.weather.gov/points/{latitude},{longitude}");
+        request.Headers.Add("User-Agent", "YourAppName/1.0 (your.email@example.com)");
+
+        var response = await _httpClient.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        var forecastUrl = JObject.Parse(await response.Content.ReadAsStringAsync())["properties"]?["forecast"];
 
         if (forecastUrl == null)
         {
             throw new Exception("Forecast URL not found.");
         }
 
-        var forecastResponse = await _httpClient.GetStringAsync(forecastUrl.ToString());
-        return JObject.Parse(forecastResponse);
+        var forecastRequest = new HttpRequestMessage(HttpMethod.Get, forecastUrl.ToString());
+        forecastRequest.Headers.Add("User-Agent", "YourAppName/1.0 (your.email@example.com)");
+
+        var forecastResponse = await _httpClient.SendAsync(forecastRequest);
+        forecastResponse.EnsureSuccessStatusCode();
+
+        return JObject.Parse(await forecastResponse.Content.ReadAsStringAsync());
     }
 }
+
