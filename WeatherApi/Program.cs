@@ -32,74 +32,100 @@ app.Run();
 public class GeocodingService
 {
     private readonly HttpClient _httpClient;
+    private readonly ILogger<GeocodingService> _logger;
 
-    public GeocodingService(HttpClient httpClient)
+    public GeocodingService(HttpClient httpClient, ILogger<GeocodingService> logger)
     {
         _httpClient = httpClient;
+        _logger = logger;
     }
 
     public async Task<(double, double)> GetCoordinatesAsync(string address)
     {
-        var response = await _httpClient.GetStringAsync($"https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address={address}&benchmark=Public_AR_Current&format=json");
-        var data = JObject.Parse(response);
-        var addressMatches = data["result"]?["addressMatches"];
-        
-        if (addressMatches == null || !addressMatches.Any())
+        try
         {
-            throw new Exception("No address matches found.");
-        }
+            var response = await _httpClient.GetStringAsync($"https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address={address}&benchmark=Public_AR_Current&format=json");
+            _logger.LogInformation("Geocoding response: {response}", response);
+            var data = JObject.Parse(response);
+            var addressMatches = data["result"]?["addressMatches"];
+            
+            if (addressMatches == null || !addressMatches.Any())
+            {
+                throw new Exception("No address matches found.");
+            }
 
-        var coordinates = addressMatches[0]?["coordinates"];
-        if (coordinates == null)
+            var coordinates = addressMatches[0]?["coordinates"];
+            if (coordinates == null)
+            {
+                throw new Exception("Coordinates not found.");
+            }
+
+            var latitudeToken = coordinates["y"];
+            var longitudeToken = coordinates["x"];
+
+            if (latitudeToken == null || longitudeToken == null)
+            {
+                throw new Exception("Latitude or Longitude not found.");
+            }
+
+            double latitude = (double)latitudeToken;
+            double longitude = (double)longitudeToken;
+
+            return (latitude, longitude);
+        }
+        catch (Exception ex)
         {
-            throw new Exception("Coordinates not found.");
+            _logger.LogError(ex, "An error occurred while getting coordinates");
+            throw;
         }
-
-        var latitudeToken = coordinates["y"];
-        var longitudeToken = coordinates["x"];
-
-        if (latitudeToken == null || longitudeToken == null)
-        {
-            throw new Exception("Latitude or Longitude not found.");
-        }
-
-        double latitude = (double)latitudeToken;
-        double longitude = (double)longitudeToken;
-
-        return (latitude, longitude);
     }
 }
 
 public class WeatherService
 {
     private readonly HttpClient _httpClient;
+    private readonly ILogger<WeatherService> _logger;
 
-    public WeatherService(HttpClient httpClient)
+    public WeatherService(HttpClient httpClient, ILogger<WeatherService> logger)
     {
         _httpClient = httpClient;
+        _logger = logger;
     }
 
     public async Task<JObject> GetWeatherForecastAsync(double latitude, double longitude)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, $"https://api.weather.gov/points/{latitude},{longitude}");
-        request.Headers.Add("User-Agent", "YourAppName/1.0 (your.email@example.com)");
-
-        var response = await _httpClient.SendAsync(request);
-        response.EnsureSuccessStatusCode();
-        var forecastUrl = JObject.Parse(await response.Content.ReadAsStringAsync())["properties"]?["forecast"];
-
-        if (forecastUrl == null)
+        try
         {
-            throw new Exception("Forecast URL not found.");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"https://api.weather.gov/points/{latitude},{longitude}");
+            request.Headers.Add("User-Agent", "YourAppName/1.0 (your.email@example.com)");
+
+            var response = await _httpClient.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            var content = await response.Content.ReadAsStringAsync();
+            _logger.LogInformation("Weather points response: {content}", content);
+            var forecastUrl = JObject.Parse(content)["properties"]?["forecast"];
+
+            if (forecastUrl == null)
+            {
+                throw new Exception("Forecast URL not found.");
+            }
+
+            var forecastRequest = new HttpRequestMessage(HttpMethod.Get, forecastUrl.ToString());
+            forecastRequest.Headers.Add("User-Agent", "YourAppName/1.0 (your.email@example.com)");
+
+            var forecastResponse = await _httpClient.SendAsync(forecastRequest);
+            forecastResponse.EnsureSuccessStatusCode();
+            var forecastContent = await forecastResponse.Content.ReadAsStringAsync();
+            _logger.LogInformation("Weather forecast response: {forecastContent}", forecastContent);
+
+            return JObject.Parse(forecastContent);
         }
-
-        var forecastRequest = new HttpRequestMessage(HttpMethod.Get, forecastUrl.ToString());
-        forecastRequest.Headers.Add("User-Agent", "YourAppName/1.0 (your.email@example.com)");
-
-        var forecastResponse = await _httpClient.SendAsync(forecastRequest);
-        forecastResponse.EnsureSuccessStatusCode();
-
-        return JObject.Parse(await forecastResponse.Content.ReadAsStringAsync());
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while getting the weather forecast");
+            throw;
+        }
     }
 }
+
 
