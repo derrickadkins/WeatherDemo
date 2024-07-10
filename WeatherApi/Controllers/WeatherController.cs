@@ -15,10 +15,17 @@ public class WeatherController : ControllerBase
     }
 
     [HttpGet("forecast")]
-    public async Task<IActionResult> GetWeatherForecast([FromQuery] string address)
+    public async Task<IActionResult> GetWeatherForecast(string address)
     {
-        var (latitude, longitude) = await _geocodingService.GetCoordinatesAsync(address);
-        var forecast = await _weatherService.GetWeatherForecastAsync(latitude, longitude);
-        return Ok(forecast);
+        try
+        {
+            var (latitude, longitude) = await _geocodingService.GetCoordinatesAsync(address);
+            var forecast = await _weatherService.GetWeatherForecastAsync(latitude, longitude);
+            return Ok(forecast); // Ensure we return the JSON object correctly
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 }
