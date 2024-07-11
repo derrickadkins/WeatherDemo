@@ -24,7 +24,7 @@ const DetailedForecast: React.FC<DetailedForecastProps> = ({ periods }) => {
           return (
             <div
               key={dayPeriod.number}
-              className="p-2 bg-white rounded-lg border border-gray-200 flex-grow text-center">
+              className="p-2 bg-white rounded-lg border border-gray-200 flex-grow text-center shadow">
               <h5 className="text-center text-lg font-semibold mb-2">{period.name}</h5>
               <div className="text-center mb-2">{format(new Date(period.startTime), "MMMM d, yyyy")}</div>
               <div className="grid grid-cols-2">
@@ -89,7 +89,9 @@ const DetailedForecast: React.FC<DetailedForecastProps> = ({ periods }) => {
           );
         } else if ((index === 0 && period.name === "Tonight") || (index === periods.length - 1 && period.isDaytime)) {
           return (
-            <div key={period.number} className="p-2 bg-white rounded-lg border border-gray-200 flex-grow text-center">
+            <div
+              key={period.number}
+              className="p-2 bg-white rounded-lg border border-gray-200 flex-grow text-center shadow">
               <h5 className="text-center text-lg font-semibold mb-2">{period.name}</h5>
               <div className="text-center mb-2">{format(new Date(period.startTime), "MMMM d, yyyy")}</div>
               <div className="grid grid-cols-2 items-center mb-2">
