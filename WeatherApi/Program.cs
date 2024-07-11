@@ -95,7 +95,7 @@ public class WeatherService
         _logger = logger;
     }
 
-    public async Task<ForecastModel> GetWeatherForecastAsync(double latitude, double longitude)
+    public async Task<Forecast> GetWeatherForecastAsync(double latitude, double longitude)
     {
         try
         {
@@ -121,10 +121,10 @@ public class WeatherService
             var forecastContent = await forecastResponse.Content.ReadAsStringAsync();
             _logger.LogInformation("Weather forecast response: {forecastContent}", forecastContent);
 
-            var parsedForecast = JsonConvert.DeserializeObject<ForecastModel>(forecastContent)!;
-            _logger.LogInformation("Parsed forecast: {parsedForecast}", parsedForecast);
+            var forecast = JsonConvert.DeserializeObject<Forecast>(forecastContent)!;
+            _logger.LogInformation("Parsed forecast: {forecast}", forecast);
 
-            return parsedForecast;
+            return forecast;
         }
         catch (Exception ex)
         {

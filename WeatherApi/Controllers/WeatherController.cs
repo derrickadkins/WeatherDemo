@@ -21,7 +21,7 @@ public class WeatherController : ControllerBase
         {
             var (latitude, longitude) = await _geocodingService.GetCoordinatesAsync(address);
             var forecast = await _weatherService.GetWeatherForecastAsync(latitude, longitude);
-            return Ok(forecast); // Ensure we return the JSON object correctly
+            return Ok(forecast);
         }
         catch (Exception ex)
         {

@@ -1,5 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
+import "tailwindcss/tailwind.css";
+import QuickView from "./QuickView";
+import TemperatureGraph from "./TemperatureGraph";
+import DetailedForecast from "./DetailedForecast";
 
 const WeatherForecast: React.FC = () => {
   const [address, setAddress] = useState("");
@@ -25,49 +29,30 @@ const WeatherForecast: React.FC = () => {
   };
 
   return (
-    <div className="container mt-5">
-      <h1 className="text-center mb-4">Weather Forecast</h1>
-      <div className="row mb-4 justify-content-center">
-        <div className="col-md-6">
-          <input
-            type="text"
-            className="form-control"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="Enter address"
-          />
-        </div>
+    <div className="container mx-auto mt-5 p-4">
+      <h1 className="text-center text-3xl font-bold mb-4">Weather Forecast</h1>
+      <div className="flex flex-col items-center mb-4">
+        <input
+          type="text"
+          className="form-input w-64 border border-gray-300 rounded-md p-2 mb-2"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          placeholder="Enter address"
+        />
+        <button className="btn btn-primary bg-blue-500 text-white px-4 py-2 rounded-md" onClick={getForecast}>
+          Get Forecast
+        </button>
       </div>
-      <div className="row mb-4 justify-content-center">
-        <div className="col-auto">
-          <button className="btn btn-primary" onClick={getForecast}>
-            Get Forecast
-          </button>
-        </div>
-      </div>
-      {error && <div className="alert alert-danger">{error}</div>}
+      {error && <div className="alert alert-danger text-red-500 mb-4">{error}</div>}
       {forecast ? (
         <div>
-          <h3>7 Day Forecast for {address}</h3>
-          <div className="row row-cols-1 row-cols-md-2 g-4">
-            {forecast.map((period: any) => (
-              <div key={period.number} className="col mb-3">
-                <div className="card">
-                  <div className="card-body">
-                    <h5 className="card-title">{period.name}</h5>
-                    <p className="card-text">
-                      {period.temperature} {period.temperatureUnit}
-                    </p>
-                    <p className="card-text">{period.shortForecast}</p>
-                    <p className="card-text">{period.detailedForecast}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <QuickView periods={forecast} />
+          <TemperatureGraph periods={forecast} />
+          <h3 className="text-xl font-semibold mb-4 text-center">7 Day Forecast for {address}</h3>
+          <DetailedForecast periods={forecast} />
         </div>
       ) : (
-        <p>No forecast data available</p>
+        <p className="text-center">No forecast data available</p>
       )}
     </div>
   );
