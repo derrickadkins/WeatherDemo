@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "tailwindcss/tailwind.css";
 import QuickView from "./QuickView";
@@ -10,7 +10,15 @@ const WeatherForecast: React.FC = () => {
   const [forecast, setForecast] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const getForecast = async () => {
+  useEffect(() => {
+    const savedAddress = localStorage.getItem("weatherAddress");
+    if (savedAddress) {
+      setAddress(savedAddress);
+      getForecast(savedAddress);
+    }
+  }, []);
+
+  const getForecast = async (address: string) => {
     setError(null); // Reset any previous error
     try {
       const response = await axios.get(`/api/weather/forecast?address=${address}`);
@@ -19,6 +27,7 @@ const WeatherForecast: React.FC = () => {
       if (periods) {
         setForecast(periods);
         console.log("Forecast periods:", periods);
+        localStorage.setItem("weatherAddress", address);
       } else {
         setError("Unable to retrieve forecast data");
       }
@@ -26,6 +35,10 @@ const WeatherForecast: React.FC = () => {
       console.error("Error fetching forecast:", error);
       setError("Error fetching forecast data");
     }
+  };
+
+  const handleButtonClick = () => {
+    getForecast(address);
   };
 
   return (
@@ -39,7 +52,7 @@ const WeatherForecast: React.FC = () => {
           onChange={(e) => setAddress(e.target.value)}
           placeholder="Enter address"
         />
-        <button className="btn btn-primary bg-blue-500 text-white px-4 py-2 rounded-md" onClick={getForecast}>
+        <button className="btn btn-primary bg-blue-500 text-white px-4 py-2 rounded-md" onClick={handleButtonClick}>
           Get Forecast
         </button>
       </div>
