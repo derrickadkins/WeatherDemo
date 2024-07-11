@@ -1,16 +1,14 @@
 import React from "react";
 import { format } from "date-fns";
 import TemperatureTrendIcon from "./TemperatureTrendIcon";
+import WindDirectionIcon from "./WindDirectionIcon";
+import RainIcon from "./RainIcon";
 
 interface DetailedForecastProps {
   periods: any[];
 }
 
 const DetailedForecast: React.FC<DetailedForecastProps> = ({ periods }) => {
-  const getWindDirectionIcon = (direction: string) => {
-    return "→"; // Placeholder arrow
-  };
-
   return (
     <div className="grid grid-cols-1 gap-4">
       {periods.map((period: any, index: number) => {
@@ -44,15 +42,14 @@ const DetailedForecast: React.FC<DetailedForecastProps> = ({ periods }) => {
                         <TemperatureTrendIcon currentTemp={dayTemp} previousTemp={previousDayTemp} />
                       </p>
                       <p className="text-gray-500 flex items-center justify-center">
-                        <svg className="inline-block w-5 h-5 mr-1" viewBox="0 -2 5 10" fill="#ADD8E6">
-                          <title>Rain</title>
-                          <path d="M4.7329.0217c-.1848-.059-.3855.0064-.4803.148L.2731 5.1191c-.0814.0922-.1501.1961-.196.3108-.2469.6009.1185 1.2697.8156 1.4943.6914.226 1.447-.0712 1.7-.6585L4.9662.4987l.0111-.0282c.073-.1807-.036-.379-.2444-.4488z"></path>
-                        </svg>
+                        <RainIcon />
                         {dayPeriod.probabilityOfPrecipitation.value ?? 0}%
                       </p>
                       <p className="text-gray-500 flex items-center justify-center">
-                        {/* <span className="inline-block mr-1">{getWindDirectionIcon(dayPeriod.windDirection)}</span> */}
-                        {dayPeriod.windSpeed} {dayPeriod.windSpeedUnit} {dayPeriod.windDirection}
+                        <span className="mr-2">
+                          <WindDirectionIcon direction={dayPeriod.windDirection} />
+                        </span>
+                        {dayPeriod.windSpeed} {dayPeriod.windDirection}
                       </p>
                     </div>
                   </div>
@@ -73,15 +70,14 @@ const DetailedForecast: React.FC<DetailedForecastProps> = ({ periods }) => {
                           <TemperatureTrendIcon currentTemp={nightTemp} previousTemp={previousNightTemp} />
                         </p>
                         <p className="text-gray-500 flex items-center justify-center">
-                          <svg className="inline-block w-5 h-5 mr-1" viewBox="0 -2 5 10" fill="#ADD8E6">
-                            <title>Rain</title>
-                            <path d="M4.7329.0217c-.1848-.059-.3855.0064-.4803.148L.2731 5.1191c-.0814.0922-.1501.1961-.196.3108-.2469.6009.1185 1.2697.8156 1.4943.6914.226 1.447-.0712 1.7-.6585L4.9662.4987l.0111-.0282c.073-.1807-.036-.379-.2444-.4488z"></path>
-                          </svg>
+                          <RainIcon />
                           {nightPeriod.probabilityOfPrecipitation.value ?? 0}%
                         </p>
                         <p className="text-gray-500 flex items-center justify-center">
-                          {/* <span className="inline-block mr-1">{getWindDirectionIcon(nightPeriod.windDirection)}</span> */}
-                          {nightPeriod.windSpeed} {nightPeriod.windSpeedUnit} {nightPeriod.windDirection}
+                          <span className="mr-2">
+                            <WindDirectionIcon direction={nightPeriod.windDirection} />
+                          </span>
+                          {nightPeriod.windSpeed} {nightPeriod.windDirection}
                         </p>
                       </div>
                     </div>
@@ -104,15 +100,14 @@ const DetailedForecast: React.FC<DetailedForecastProps> = ({ periods }) => {
                     <TemperatureTrendIcon currentTemp={currentTemp} previousTemp={previousTemp} />
                   </p>
                   <p className="text-gray-500 flex items-center justify-center">
-                    <svg className="inline-block w-5 h-5 mr-1" viewBox="0 -2 5 10" fill="#ADD8E6">
-                      <title>Rain</title>
-                      <path d="M4.7329.0217c-.1848-.059-.3855.0064-.4803.148L.2731 5.1191c-.0814.0922-.1501.1961-.196.3108-.2469.6009.1185 1.2697.8156 1.4943.6914.226 1.447-.0712 1.7-.6585L4.9662.4987l.0111-.0282c.073-.1807-.036-.379-.2444-.4488z"></path>
-                    </svg>
+                    <RainIcon />
                     {period.probabilityOfPrecipitation.value ?? 0}%
                   </p>
                   <p className="text-gray-500 flex items-center justify-center">
-                    {/* <span className="inline-block mr-1">{getWindDirectionIcon(period.windDirection)}</span> */}
-                    {period.windSpeed} {period.windSpeedUnit} {period.windDirection}
+                    <span className="mr-2">
+                      <WindDirectionIcon direction={period.windDirection} />
+                    </span>
+                    {period.windSpeed} {period.windDirection}
                   </p>
                 </div>
               </div>
